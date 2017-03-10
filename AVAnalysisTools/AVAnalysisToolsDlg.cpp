@@ -6,7 +6,7 @@
 #include "AVAnalysisTools.h"
 #include "AVAnalysisToolsDlg.h"
 #include "afxdialogex.h"
-
+#include "ParserFormat.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -98,6 +98,8 @@ BOOL CAVAnalysisToolsDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+
+	CParserFormat::getInstance()->parserFlvFile("E:\\workSpace\\ffmpegStudy\\ffmpegStudy\\cuc_ieschool.flv");
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }

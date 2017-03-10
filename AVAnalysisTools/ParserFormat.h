@@ -5,7 +5,7 @@ using namespace log4cxx;
 const int TAG_TYPE_AUDIO	= 0x08;
 const int TAG_TYPE_VIDEO	= 0x09;
 const int TAG_TYPE_SCRIPT	= 0x12;
-
+#include <deque>
 enum script_type
 {
 	Number = 0,
@@ -30,10 +30,15 @@ private:
 public:
 	~CParserFormat(void);
 	LoggerPtr logger;
+	std::vector<char*>m_vecMeta;
 public:
 	bool parserFlvFile(const char *fileName);
 	bool parserMetaData(const unsigned char *buffer, int nLen);
 public:
 	static CParserFormat* getInstance();
+	int getString(const unsigned char *buff);
+	int getBoolean(const unsigned char *buff);
+	int getNumber(const unsigned char *buff);
+	int getStrictArray(const unsigned char *buff);
 };
 

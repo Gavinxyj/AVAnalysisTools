@@ -9,6 +9,7 @@ CParserFormat::CParserFormat(void)
 {
 	PropertyConfigurator::configure("C:\\DriverAdaptor\\config.properties");
 	logger = Logger::getLogger("debugLogger");
+	m_vecMeta.clear();
 }
 
 
@@ -99,39 +100,40 @@ bool CParserFormat::parserFlvFile(const char *fileName)
 
 bool CParserFormat::parserMetaData(const unsigned char *buffer, int nLen)
 {
-	unsigned char buff[32] = {0};
-	int  nSize = 0;
-	int  nPos  = 0;
-	CString strForamt;
-	const unsigned char *p = buffer;
-	
-	if (nLen <= 0)
+	CString strFormat;
+	int nPos = 0;
+	bool bFlag = false;
+	unsigned char chTemp[32] = {0};
+	//读取metaData信息
+	strFormat.Format("%02x%02x", *(buffer + 1), *(buffer + 2));
+	sscanf_s(strFormat.GetBuffer(), "%x", &nPos);
+	memcpy(chTemp, buffer + 3, nPos);
+	m_vecMeta.push_back((char *)chTemp);
+
+	//读取数组中的键值对信息
+	int arrayLen = 0;
+	buffer = buffer + nPos + 3;
+	strFormat.Format("%02x%02x%02x%02x", *(buffer + 1), *(buffer + 2),*(buffer + 3),*(buffer + 4));
+	sscanf_s(strFormat.GetBuffer(), "%x", &arrayLen);
+
+	buffer = buffer + 4;
+	for (int nLoop = 0; nLoop < arrayLen * 2; nLoop ++)
 	{
-		return true;
-	}
-	switch(*p)
-	{
+		int offset = getString(buffer);
+		buffer = buffer + offset;
+		switch(*buffer)
+		{
 		case Number:
+			offset = getNumber(buffer);
+			buffer = buffer + offset;
 			break;
 		case Boolean:
-			parserMetaData(buffer + nPos + 1,1);
+			offset = getBoolean(buffer);
+			buffer = buffer + offset;
 			break;
-		case String:				
-			strForamt.Format("%02x%02x", *(p + 1), *(p + 2));
-			sscanf_s(strForamt.GetBuffer(), "%x", &nPos);
-			p = buffer + 3 + nPos;
-			if (bFlag)
-			{
-				strForamt.Format("%02x%02x", *p, *(p + 1));
-				sscanf_s(strForamt.GetBuffer(), "%x", &nPos);
-				p = p + nPos + 3;
-				parserMetaData(p, nLen - nPos - 3);
-			}
-			else
-			{
-				parserMetaData(p, nLen - nPos - 3);
-			}
-			
+		case String:	
+			offset = getString(buffer);
+			buffer = buffer + offset - 1;
 			break;
 		case Object:
 			break;
@@ -144,21 +146,12 @@ bool CParserFormat::parserMetaData(const unsigned char *buffer, int nLen)
 		case Reference:
 			break;
 		case ECMA_ARRAY:
-			//获取MetaData数组元素个数
-			strForamt.Format("%02x%02x%02x%02x", *(p + 1), *(p + 2),*(p + 3),*(p + 4));
-			sscanf_s(strForamt.GetBuffer(), "%x", &nPos);
-			p = buffer + 4;
-			strForamt.Format("%02x%02x", *(p + 1), *(p + 2));
-			sscanf_s(strForamt.GetBuffer(), "%x", &nPos);
-			memset(buff, 0, 32);
-			memcpy(buff, p + 3, nPos);
-			p = p + nPos + 3;
-			bFlag = true;
-			parserMetaData(p, nLen - nPos - 3);
 			break;
 		case Object_end_marker:
+			
 			break;
 		case Strict_array:
+			bFlag = true;
 			break;
 		case Date:
 			break;
@@ -166,6 +159,53 @@ bool CParserFormat::parserMetaData(const unsigned char *buffer, int nLen)
 			break;
 		default:
 			break;
+		}
+
+		if (bFlag) break;
+		
 	}
+
+	
 	return true;
+}
+
+int CParserFormat::getString(const unsigned char *buff)
+{
+	CString strFormat;
+    char *chTemp = new char[32];
+	memset(chTemp, 0, 32);
+	int nPos = 0;
+	strFormat.Format("%02x%02x", *(buff + 1), *(buff + 2));
+	sscanf_s(strFormat.GetBuffer(), "%x", &nPos);
+	memcpy(chTemp, buff + 3, nPos);
+	m_vecMeta.push_back(chTemp);
+	return nPos + 3;
+}
+
+int CParserFormat::getBoolean(const unsigned char *buff)
+{
+	m_vecMeta.push_back((char*)(buff + 1));
+	return 1;
+}
+
+int CParserFormat::getNumber(const unsigned char *buff)
+{
+	CString strFormat;
+	char *chTemp = new char[32];
+	memset(chTemp, 0, 32);
+	int nPos = 0;
+	strFormat.Format("%02x%02x%02x%02x%02x%02x%02x%02x", 
+					  *(buff + 1), *(buff + 2),
+					  *(buff + 3), *(buff + 4),
+					  *(buff + 5), *(buff + 6),
+					  *(buff + 7), *(buff + 8));
+	//sscanf_s(strFormat.GetBuffer(), "%x", &nPos);
+	memcpy(chTemp, buff + 1, 8);
+	m_vecMeta.push_back(chTemp);
+	return nPos + 8;
+}
+
+int CParserFormat::getStrictArray(const unsigned char *buff)
+{
+	return 0;
 }
