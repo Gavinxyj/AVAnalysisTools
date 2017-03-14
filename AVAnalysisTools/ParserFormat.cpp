@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "ParserFormat.h"
-#include "ItemMgr.h"
+
 #include <stdio.h>
 
 static bool bFlag = false;
@@ -10,6 +10,7 @@ CParserFormat::CParserFormat(void)
 	PropertyConfigurator::configure("C:\\DriverAdaptor\\config.properties");
 	logger = Logger::getLogger("debugLogger");
 	m_vecMeta.clear();
+	m_vecTag.clear();
 }
 
 
@@ -56,43 +57,76 @@ bool CParserFormat::parserFlvFile(const char *fileName)
 		LOG4CXX_ERROR(logger, "文件："<< fileName << "只包含视频流");
 	}
 
-	PTAG pTag = new TAG;
+	
 
-	//读取Previous Tag size
-	fread((char*)pTag->preTagSize, 1, 4, file);
-
-	//读取Tag Header信息
-	PTAGHEADER pTagHeader = new TAGHEADER;
-	fread((char*)pTagHeader, 1, sizeof(TAGHEADER), file);
-
-	pTag->pTagHeader = pTagHeader;
-
-	if (*pTagHeader->type == TAG_TYPE_SCRIPT)
+	while (!feof(file))
 	{
-		int nLen = 0;
-		CString strForamt;
-		strForamt.Format("%02x%02x%02x",pTagHeader->dataSize[0],pTagHeader->dataSize[1],pTagHeader->dataSize[2]);
-		sscanf_s(strForamt.GetBuffer(), "%x", &nLen);		
-		
-		if (0 != nLen)
-		{
-			unsigned char *buffer = (unsigned char *)malloc(sizeof(unsigned char) * nLen);
-			memset(buffer, 0, nLen);
+		PTAG pTag = new TAG;
 
-			fread(buffer, 1, nLen, file);
-			
-			this->parserMetaData(buffer, nLen);
+		//读取Previous Tag size
+		fread((char*)pTag->preTagSize, 1, 4, file);
+
+		//读取Tag Header信息
+		PTAGHEADER pTagHeader = new TAGHEADER;
+		fread((char*)pTagHeader, 1, sizeof(TAGHEADER), file);
+
+		pTag->pTagHeader = pTagHeader;
+
+		if (*pTagHeader->type == TAG_TYPE_SCRIPT)
+		{
+			int nLen = 0;
+			CString strForamt;
+			strForamt.Format("%02x%02x%02x",pTagHeader->dataSize[0],pTagHeader->dataSize[1],pTagHeader->dataSize[2]);
+			sscanf_s(strForamt.GetBuffer(), "%x", &nLen);		
+
+			if (0 != nLen)
+			{
+				unsigned char *tagData = (unsigned char *)malloc(sizeof(unsigned char) * nLen + 1);
+				memset(tagData, 0, nLen + 1);
+
+				fread(tagData, 1, nLen, file);
+
+				this->parserMetaData(tagData, nLen);
+			}
+
+		}
+		else if(*pTagHeader->type == TAG_TYPE_VIDEO)
+		{
+			int nLen = 0;
+			CString strForamt;
+			strForamt.Format("%02x%02x%02x",pTagHeader->dataSize[0],pTagHeader->dataSize[1],pTagHeader->dataSize[2]);
+			sscanf_s(strForamt.GetBuffer(), "%x", &nLen);		
+
+			if (0 != nLen)
+			{
+				unsigned char *tagData = (unsigned char *)malloc(sizeof(unsigned char) * nLen + 1);
+				memset(tagData, 0, nLen + 1);
+
+				fread(tagData, 1, nLen, file);
+				this->parserVideoTag(tagData);
+				
+				pTag->pTagData = tagData;
+			}
+		}
+		else if (*pTagHeader->type == TAG_TYPE_AUDIO)
+		{
+			int nLen = 0;
+			CString strForamt;
+			strForamt.Format("%02x%02x%02x",pTagHeader->dataSize[0],pTagHeader->dataSize[1],pTagHeader->dataSize[2]);
+			sscanf_s(strForamt.GetBuffer(), "%x", &nLen);		
+
+			if (0 != nLen)
+			{
+				unsigned char *tagData = (unsigned char *)malloc(sizeof(unsigned char) * nLen + 1);
+				memset(tagData, 0, nLen + 1);
+				fread(tagData, 1, nLen, file);			
+				pTag->pTagData = tagData;
+			}
 		}
 
+		m_vecTag.push_back(pTag);
 	}
-	else if(*pTagHeader->type == TAG_TYPE_VIDEO)
-	{
-
-	}
-	else if (*pTagHeader->type == TAG_TYPE_AUDIO)
-	{
-
-	}
+	
 
 	fclose(file);
 	return true;
@@ -208,4 +242,10 @@ int CParserFormat::getNumber(const unsigned char *buff)
 int CParserFormat::getStrictArray(const unsigned char *buff)
 {
 	return 0;
+}
+
+bool CParserFormat::parserVideoTag(const unsigned char *buffer)
+{
+
+	return true;
 }

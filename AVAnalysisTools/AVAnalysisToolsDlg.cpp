@@ -7,6 +7,7 @@
 #include "AVAnalysisToolsDlg.h"
 #include "afxdialogex.h"
 #include "ParserFormat.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -49,7 +50,7 @@ END_MESSAGE_MAP()
 
 
 CAVAnalysisToolsDlg::CAVAnalysisToolsDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CAVAnalysisToolsDlg::IDD, pParent)
+	: CDialogEx(CAVAnalysisToolsDlg::IDD, pParent),m_ListCtrl(this),m_FileHeaderCtrl(this),m_DetailCtrl(this)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -63,6 +64,9 @@ BEGIN_MESSAGE_MAP(CAVAnalysisToolsDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_CREATE()
+	ON_WM_SIZE()
+	ON_BN_CLICKED(IDC_BUTTON1, &CAVAnalysisToolsDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -101,6 +105,7 @@ BOOL CAVAnalysisToolsDlg::OnInitDialog()
 
 	CParserFormat::getInstance()->parserFlvFile("E:\\workSpace\\ffmpegStudy\\ffmpegStudy\\cuc_ieschool.flv");
 
+	
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -153,3 +158,65 @@ HCURSOR CAVAnalysisToolsDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+int CAVAnalysisToolsDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  在此添加您专用的创建代码
+	
+	RECT rect = {0};
+	GetClientRect(&rect);
+
+	m_Lbutton.Create("格式解析", BS_GROUPBOX|WS_VISIBLE, CRect(2, 60, (rect.right - rect.left) / 2, rect.bottom - rect.top), this, 1024);
+	m_RUpButton.Create("文件头信息", BS_GROUPBOX|WS_VISIBLE, CRect((rect.right - rect.left) / 2 + 1, 60, (rect.right - rect.left) , (rect.bottom - rect.top) / 2 - 50), this, 1025);
+	m_RDownButton.Create("详细信息", BS_GROUPBOX|WS_VISIBLE, CRect((rect.right - rect.left) / 2 + 1, (rect.bottom - rect.top) / 2 - 48, (rect.right - rect.left) , (rect.bottom - rect.top)), this, 1026);
+
+	m_Lbutton.GetClientRect(&rect);
+	m_ListCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, 
+						CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
+						&m_Lbutton, 
+						1);
+	m_ListCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
+	m_ListCtrl.InsertColumn(0,"序号",LVCFMT_LEFT, 40);
+	m_ListCtrl.InsertColumn(1,"类型",LVCFMT_LEFT, 80);
+	m_ListCtrl.InsertColumn(2,"大小",LVCFMT_LEFT, 80);
+	m_ListCtrl.InsertColumn(3,"时间戳",LVCFMT_LEFT, 80);
+	m_ListCtrl.InsertColumn(4,"Tag Data首字节",LVCFMT_LEFT, 220);
+	
+
+/*	m_RUpButton.GetClientRect(&rect);
+	m_FileHeaderCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS, 
+								CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
+								&m_RUpButton, 
+								2);
+	m_FileHeaderCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
+	m_FileHeaderCtrl.InsertColumn(0,"name",LVCFMT_LEFT, (rect.right - rect.left) / 2);
+	m_FileHeaderCtrl.InsertColumn(1,"value",LVCFMT_LEFT, (rect.right - rect.left) / 2);
+
+	m_RDownButton.GetClientRect(&rect);
+	m_DetailCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS, 
+		CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
+		&m_RDownButton, 
+		2);
+	m_DetailCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);*/
+	//m_DetailCtrl.InsertColumn(0,"name",LVCFMT_LEFT, (rect.right - rect.left) / 2);
+	//m_DetailCtrl.InsertColumn(1,"value",LVCFMT_LEFT, (rect.right - rect.left) / 2);
+	return 0;
+}
+
+void CAVAnalysisToolsDlg::OnSize(UINT nType, int cx, int cy)
+{
+	CDialogEx::OnSize(nType, cx, cy);
+
+	// TODO: 在此处添加消息处理程序代码
+}
+
+
+void CAVAnalysisToolsDlg::OnBnClickedButton1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_ListCtrl.AddItem("123");
+}

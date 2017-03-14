@@ -1,11 +1,13 @@
 #pragma once
+
+#include "ItemMgr.h"
 #include <log4cxx/logger.h>
 #include <log4cxx/propertyconfigurator.h>
 using namespace log4cxx;
 const int TAG_TYPE_AUDIO	= 0x08;
 const int TAG_TYPE_VIDEO	= 0x09;
 const int TAG_TYPE_SCRIPT	= 0x12;
-#include <deque>
+
 enum script_type
 {
 	Number = 0,
@@ -31,9 +33,11 @@ public:
 	~CParserFormat(void);
 	LoggerPtr logger;
 	std::vector<char*>m_vecMeta;
+	std::vector<PTAG>m_vecTag;
 public:
 	bool parserFlvFile(const char *fileName);
 	bool parserMetaData(const unsigned char *buffer, int nLen);
+	bool parserVideoTag(const unsigned char *buffer);
 public:
 	static CParserFormat* getInstance();
 	int getString(const unsigned char *buff);

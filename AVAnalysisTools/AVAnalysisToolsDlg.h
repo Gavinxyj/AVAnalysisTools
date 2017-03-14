@@ -3,9 +3,9 @@
 //
 
 #pragma once
-
-
+#include "OperatingCtrl.h"
 // CAVAnalysisToolsDlg 对话框
+class COperatingCtrl;
 class CAVAnalysisToolsDlg : public CDialogEx
 {
 // 构造
@@ -18,7 +18,6 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 
-
 // 实现
 protected:
 	HICON m_hIcon;
@@ -29,4 +28,15 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+public:
+	COperatingCtrl m_ListCtrl;
+	COperatingCtrl m_FileHeaderCtrl;
+	COperatingCtrl m_DetailCtrl;
+	CButton m_Lbutton;
+	CButton m_RUpButton;
+	CButton m_RDownButton;
+	afx_msg void OnBnClickedButton1();
 };
