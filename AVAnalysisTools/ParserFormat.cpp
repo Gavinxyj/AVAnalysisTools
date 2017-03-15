@@ -16,6 +16,27 @@ CParserFormat::CParserFormat(void)
 
 CParserFormat::~CParserFormat(void)
 {
+	if (0 != m_vecTag.size())
+	{
+		std::vector<PTAG>::iterator iter = m_vecTag.begin();
+		for (; iter != m_vecTag.end(); iter ++)
+		{
+			delete *iter;
+			*iter = NULL;
+		}
+		m_vecTag.clear();
+	}
+
+	if (0 != m_vecMeta.size())
+	{
+		std::vector<char*>::iterator iter = m_vecMeta.begin();
+		for (; iter != m_vecMeta.end(); iter ++)
+		{
+			delete *iter;
+			*iter = NULL;
+		}
+		m_vecMeta.clear();
+	}
 }
 
 CParserFormat* CParserFormat::getInstance()
@@ -39,16 +60,14 @@ bool CParserFormat::parserFlvFile(const char *fileName)
 		LOG4CXX_ERROR(logger, "文件："<< fileName << "打开失败！");
 		return false;
 	}
-	PFLVHEADER pFlvHeader = new FLVHEADER;
-	
 	//读取FLV文件头信息
-	fread((char*)pFlvHeader, 1, sizeof(FLVHEADER), file);
+	fread((char*)&m_flvHeader, 1, sizeof(FLVHEADER), file);
 	
-	if (*pFlvHeader->flags == 0x05)
+	if (m_flvHeader.flags[0] == 0x05)
 	{
 		LOG4CXX_ERROR(logger, "文件："<< fileName << "包含音视频流");
 	}
-	else if (*pFlvHeader->flags == 0x04)
+	else if (m_flvHeader.flags[0] == 0x04)
 	{
 		LOG4CXX_ERROR(logger, "文件："<< fileName << "只包含音频流");
 	}
@@ -85,8 +104,8 @@ bool CParserFormat::parserFlvFile(const char *fileName)
 				memset(tagData, 0, nLen + 1);
 
 				fread(tagData, 1, nLen, file);
-
-				this->parserMetaData(tagData, nLen);
+				pTag->pTagData = tagData;
+				this->parserMetaData(pTag->pTagData, nLen);
 			}
 
 		}

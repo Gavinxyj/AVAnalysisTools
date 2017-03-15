@@ -34,6 +34,7 @@ public:
 	LoggerPtr logger;
 	std::vector<char*>m_vecMeta;
 	std::vector<PTAG>m_vecTag;
+	FLVHEADER m_flvHeader;
 public:
 	bool parserFlvFile(const char *fileName);
 	bool parserMetaData(const unsigned char *buffer, int nLen);

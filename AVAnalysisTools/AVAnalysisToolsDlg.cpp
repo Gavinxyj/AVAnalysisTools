@@ -187,23 +187,37 @@ int CAVAnalysisToolsDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_ListCtrl.InsertColumn(4,"Tag Data首字节",LVCFMT_LEFT, 220);
 	
 
-/*	m_RUpButton.GetClientRect(&rect);
-	m_FileHeaderCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS, 
+	m_RUpButton.GetClientRect(&rect);
+	m_FileHeaderCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, 
 								CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
 								&m_RUpButton, 
 								2);
 	m_FileHeaderCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
-	m_FileHeaderCtrl.InsertColumn(0,"name",LVCFMT_LEFT, (rect.right - rect.left) / 2);
-	m_FileHeaderCtrl.InsertColumn(1,"value",LVCFMT_LEFT, (rect.right - rect.left) / 2);
+	m_FileHeaderCtrl.InsertColumn(0,"Name",LVCFMT_LEFT, (rect.right - rect.left) / 2);
+	m_FileHeaderCtrl.InsertColumn(1,"Value",LVCFMT_LEFT, (rect.right - rect.left) / 2);
 
 	m_RDownButton.GetClientRect(&rect);
-	m_DetailCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_OWNERDATA | LVS_SHOWSELALWAYS, 
-		CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
-		&m_RDownButton, 
-		2);
-	m_DetailCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);*/
-	//m_DetailCtrl.InsertColumn(0,"name",LVCFMT_LEFT, (rect.right - rect.left) / 2);
-	//m_DetailCtrl.InsertColumn(1,"value",LVCFMT_LEFT, (rect.right - rect.left) / 2);
+	m_DetailCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_AUTOARRANGE, 
+							CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
+							&m_RDownButton, 
+							2);
+	m_DetailCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
+	m_DetailCtrl.InsertColumn(0,"0",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(1,"1",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(2,"2",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(3,"3",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(4,"4",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(5,"5",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(6,"6",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(7,"7",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(8,"8",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(9,"9",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(10,"A",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(11,"B",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(12,"C",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(13,"D",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(14,"E",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(15,"F",LVCFMT_LEFT, 30);
 	return 0;
 }
 
@@ -218,5 +232,51 @@ void CAVAnalysisToolsDlg::OnSize(UINT nType, int cx, int cy)
 void CAVAnalysisToolsDlg::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	m_ListCtrl.AddItem("123");
+	char chTemp[10] = {0};
+	strncpy(chTemp, (const char*)CParserFormat::getInstance()->m_flvHeader.signature, 3);
+	m_FileHeaderCtrl.InsertItem(0, "");
+	m_FileHeaderCtrl.SetItemText(0, 0, "Signature");
+	m_FileHeaderCtrl.SetItemText(0, 1, chTemp);
+
+	int nVersion = 0;
+	memset(chTemp, 0, 10);
+	CString strForamt;
+	strForamt.Format("%02x",CParserFormat::getInstance()->m_flvHeader.version[0]);
+	sscanf_s(strForamt.GetBuffer(), "%x", &nVersion);
+	itoa(nVersion, chTemp, 10);
+	m_FileHeaderCtrl.InsertItem(1, "");
+	m_FileHeaderCtrl.SetItemText(1, 0, "Version");
+	m_FileHeaderCtrl.SetItemText(1, 1, chTemp);
+
+	int nFlag = 0;
+	memset(chTemp, 0, 10);
+	strForamt.Format("%02x",CParserFormat::getInstance()->m_flvHeader.flags[0]);
+	sscanf_s(strForamt.GetBuffer(), "%x", &nFlag);
+	itoa(nFlag, chTemp, 10);
+	m_FileHeaderCtrl.InsertItem(2, "");
+	m_FileHeaderCtrl.SetItemText(2, 0, "Flags");
+	m_FileHeaderCtrl.SetItemText(2, 1, chTemp);
+
+	int nHeadSize = 0;
+	memset(chTemp, 0, 10);
+	strForamt.Format("%02x%02x%02x%02x",CParserFormat::getInstance()->m_flvHeader.headSize[0],
+										CParserFormat::getInstance()->m_flvHeader.headSize[1],
+										CParserFormat::getInstance()->m_flvHeader.headSize[2],
+										CParserFormat::getInstance()->m_flvHeader.headSize[3]);
+	sscanf_s(strForamt.GetBuffer(), "%x", &nHeadSize);
+	itoa(nHeadSize, chTemp, 10);
+	m_FileHeaderCtrl.InsertItem(3, "");
+	m_FileHeaderCtrl.SetItemText(3, 0, "HeaderSize");
+	m_FileHeaderCtrl.SetItemText(3, 1, chTemp);
+
+	m_FileHeaderCtrl.SetTextBkColor(RGB(205, 181, 205));
+	std::vector<PTAG>::iterator iter = CParserFormat::getInstance()->m_vecTag.begin();
+	m_ListCtrl.DeleteAllItems();
+	int nIndex = 0;
+	for (;iter != CParserFormat::getInstance()->m_vecTag.end(); iter ++)
+	{
+		nIndex ++;
+		m_ListCtrl.AddItem(*iter, nIndex);
+	}
+	
 }
