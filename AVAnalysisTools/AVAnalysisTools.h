@@ -19,11 +19,11 @@ class CAVAnalysisToolsApp : public CWinApp
 {
 public:
 	CAVAnalysisToolsApp();
-
+	ULONG_PTR m_gdiplusToken;
 // ÷ÿ–¥
 public:
 	virtual BOOL InitInstance();
-
+	virtual int ExitInstance();
 //  µœ÷
 
 	DECLARE_MESSAGE_MAP()

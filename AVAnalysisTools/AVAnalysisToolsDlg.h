@@ -4,6 +4,8 @@
 
 #pragma once
 #include "OperatingCtrl.h"
+#include "GdipButton.h"
+#include "afxwin.h"
 // CAVAnalysisToolsDlg ¶Ô»°¿ò
 class COperatingCtrl;
 class CAVAnalysisToolsDlg : public CDialogEx
@@ -36,7 +38,9 @@ public:
 	COperatingCtrl m_FileHeaderCtrl;
 	COperatingCtrl m_DetailCtrl;
 	CButton m_Lbutton;
+	CGdipButton m_recodeBtn;
 	CButton m_RUpButton;
 	CButton m_RDownButton;
-	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedFlv();
+	CButton m_FlvButton;
 };

@@ -58,6 +58,7 @@ CAVAnalysisToolsDlg::CAVAnalysisToolsDlg(CWnd* pParent /*=NULL*/)
 void CAVAnalysisToolsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_BUTTON1, m_FlvButton);
 }
 
 BEGIN_MESSAGE_MAP(CAVAnalysisToolsDlg, CDialogEx)
@@ -66,7 +67,7 @@ BEGIN_MESSAGE_MAP(CAVAnalysisToolsDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	ON_BN_CLICKED(IDC_BUTTON1, &CAVAnalysisToolsDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON_FLV, &CAVAnalysisToolsDlg::OnBnClickedFlv)
 END_MESSAGE_MAP()
 
 
@@ -102,10 +103,13 @@ BOOL CAVAnalysisToolsDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-
-	CParserFormat::getInstance()->parserFlvFile("E:\\workSpace\\ffmpegStudy\\ffmpegStudy\\cuc_ieschool.flv");
-
 	
+	
+
+	/*m_recodeBtn.Create("",WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT, CRect(5,0,45,45),this,4096);
+	m_recodeBtn.LoadStdImage(IDB_PNG2, _T("PNG"));
+	//m_FlvButton.LoadAltImage(IDB_PNG_FLV, _T("PNG"));
+	m_recodeBtn.EnableToggle(FALSE);*/
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -229,9 +233,22 @@ void CAVAnalysisToolsDlg::OnSize(UINT nType, int cx, int cy)
 }
 
 
-void CAVAnalysisToolsDlg::OnBnClickedButton1()
+void CAVAnalysisToolsDlg::OnBnClickedFlv()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
+	TCHAR szFilter[] = _T("Flash文件(*.flv)|*.flv");
+	CFileDialog fileDlg(TRUE, _T("FLV"), NULL, 0, szFilter, this);   
+	CString strFilePath;   
+	if (IDOK == fileDlg.DoModal())   
+	{   
+		// 如果点击了文件对话框上的“打开”按钮，则将选择的文件路径显示到编辑框里   
+		strFilePath = fileDlg.GetPathName();   
+		
+	}   
+	if (strFilePath.IsEmpty()) return;
+
+	CParserFormat::getInstance()->parserFlvFile(strFilePath);
 	char chTemp[10] = {0};
 	strncpy(chTemp, (const char*)CParserFormat::getInstance()->m_flvHeader.signature, 3);
 	m_FileHeaderCtrl.InsertItem(0, "");
