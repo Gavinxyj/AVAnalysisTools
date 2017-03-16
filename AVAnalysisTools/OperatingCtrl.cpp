@@ -67,7 +67,7 @@ void COperatingCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 void COperatingCtrl::AddItem(TAG *tag, int nIndex)
 {
 	int index = InsertItem(GetItemCount(), "");
-	SetItemCount(1024);
+	
 	SetRedraw(FALSE);
 	char szId[8] = {0};
 	itoa(nIndex, szId, 10);

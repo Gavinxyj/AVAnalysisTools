@@ -249,6 +249,8 @@ void CAVAnalysisToolsDlg::OnBnClickedFlv()
 	if (strFilePath.IsEmpty()) return;
 
 	CParserFormat::getInstance()->parserFlvFile(strFilePath);
+
+	m_FileHeaderCtrl.DeleteAllItems();
 	char chTemp[10] = {0};
 	strncpy(chTemp, (const char*)CParserFormat::getInstance()->m_flvHeader.signature, 3);
 	m_FileHeaderCtrl.InsertItem(0, "");
@@ -288,6 +290,7 @@ void CAVAnalysisToolsDlg::OnBnClickedFlv()
 
 	m_FileHeaderCtrl.SetTextBkColor(RGB(205, 181, 205));
 	std::vector<PTAG>::iterator iter = CParserFormat::getInstance()->m_vecTag.begin();
+	
 	m_ListCtrl.DeleteAllItems();
 	int nIndex = 0;
 	for (;iter != CParserFormat::getInstance()->m_vecTag.end(); iter ++)
@@ -296,4 +299,10 @@ void CAVAnalysisToolsDlg::OnBnClickedFlv()
 		m_ListCtrl.AddItem(*iter, nIndex);
 	}
 	
+	for (;iter != CParserFormat::getInstance()->m_vecTag.end(); iter ++)
+	{
+		delete *iter;
+		*iter = NULL;
+	}
+	CParserFormat::getInstance()->m_vecTag.clear();
 }
