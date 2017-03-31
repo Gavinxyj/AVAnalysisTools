@@ -43,8 +43,8 @@ public:
 	void parseFirstByte(TAG *tag, char *buff);
 private:
 	CAVAnalysisToolsDlg *m_pToolDlg;
-	CRITICAL_SECTION	m_csDeleteItem;
 	CButton button;
+	
 public:
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);

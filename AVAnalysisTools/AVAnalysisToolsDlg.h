@@ -19,7 +19,8 @@ public:
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
-
+public:
+	void InitFlvListCtrl(bool bFlag);
 // 实现
 protected:
 	HICON m_hIcon;
@@ -33,6 +34,7 @@ protected:
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnBnClickedFlv();
 public:
 	COperatingCtrl m_ListCtrl;
 	COperatingCtrl m_FileHeaderCtrl;
@@ -41,6 +43,6 @@ public:
 	CGdipButton m_recodeBtn;
 	CButton m_RUpButton;
 	CButton m_RDownButton;
-	afx_msg void OnBnClickedFlv();
 	CButton m_FlvButton;
+	bool bFlagFlv;
 };

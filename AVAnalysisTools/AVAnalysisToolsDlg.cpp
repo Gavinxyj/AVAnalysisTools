@@ -53,6 +53,7 @@ CAVAnalysisToolsDlg::CAVAnalysisToolsDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CAVAnalysisToolsDlg::IDD, pParent),m_ListCtrl(this),m_FileHeaderCtrl(this),m_DetailCtrl(this)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	bFlagFlv = false;
 }
 
 void CAVAnalysisToolsDlg::DoDataExchange(CDataExchange* pDX)
@@ -103,13 +104,7 @@ BOOL CAVAnalysisToolsDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	
-	
 
-	/*m_recodeBtn.Create("",WS_CHILD | WS_VISIBLE | BS_BITMAP | BS_FLAT, CRect(5,0,45,45),this,4096);
-	m_recodeBtn.LoadStdImage(IDB_PNG2, _T("PNG"));
-	//m_FlvButton.LoadAltImage(IDB_PNG_FLV, _T("PNG"));
-	m_recodeBtn.EnableToggle(FALSE);*/
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -162,73 +157,22 @@ HCURSOR CAVAnalysisToolsDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
 int CAVAnalysisToolsDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
 	// TODO:  在此添加您专用的创建代码
-	
 	RECT rect = {0};
 	GetClientRect(&rect);
-
-	m_Lbutton.Create("格式解析", BS_GROUPBOX|WS_VISIBLE, CRect(2, 60, (rect.right - rect.left) / 2, rect.bottom - rect.top), this, 1024);
-	m_RUpButton.Create("文件头信息", BS_GROUPBOX|WS_VISIBLE, CRect((rect.right - rect.left) / 2 + 1, 60, (rect.right - rect.left) , (rect.bottom - rect.top) / 2 - 50), this, 1025);
-	m_RDownButton.Create("详细信息", BS_GROUPBOX|WS_VISIBLE, CRect((rect.right - rect.left) / 2 + 1, (rect.bottom - rect.top) / 2 - 48, (rect.right - rect.left) , (rect.bottom - rect.top)), this, 1026);
-
-	m_Lbutton.GetClientRect(&rect);
-	m_ListCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, 
-						CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
-						&m_Lbutton, 
-						1);
-	m_ListCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
-	m_ListCtrl.InsertColumn(0,"序号",LVCFMT_LEFT, 40);
-	m_ListCtrl.InsertColumn(1,"类型",LVCFMT_LEFT, 80);
-	m_ListCtrl.InsertColumn(2,"大小",LVCFMT_LEFT, 80);
-	m_ListCtrl.InsertColumn(3,"时间戳",LVCFMT_LEFT, 80);
-	m_ListCtrl.InsertColumn(4,"Tag Data首字节",LVCFMT_LEFT, 220);
 	
-
-	m_RUpButton.GetClientRect(&rect);
-	m_FileHeaderCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, 
-								CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
-								&m_RUpButton, 
-								2);
-	m_FileHeaderCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
-	m_FileHeaderCtrl.InsertColumn(0,"Name",LVCFMT_LEFT, (rect.right - rect.left) / 2);
-	m_FileHeaderCtrl.InsertColumn(1,"Value",LVCFMT_LEFT, (rect.right - rect.left) / 2);
-
-	m_RDownButton.GetClientRect(&rect);
-	m_DetailCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_AUTOARRANGE, 
-							CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
-							&m_RDownButton, 
-							2);
-	m_DetailCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
-	m_DetailCtrl.InsertColumn(0,"0",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(1,"1",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(2,"2",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(3,"3",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(4,"4",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(5,"5",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(6,"6",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(7,"7",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(8,"8",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(9,"9",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(10,"A",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(11,"B",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(12,"C",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(13,"D",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(14,"E",LVCFMT_LEFT, 30);
-	m_DetailCtrl.InsertColumn(15,"F",LVCFMT_LEFT, 30);
+	
 	return 0;
 }
 
 void CAVAnalysisToolsDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
-
 	// TODO: 在此处添加消息处理程序代码
 }
 
@@ -236,7 +180,7 @@ void CAVAnalysisToolsDlg::OnSize(UINT nType, int cx, int cy)
 void CAVAnalysisToolsDlg::OnBnClickedFlv()
 {
 	// TODO: 在此添加控件通知处理程序代码
-
+	
 	TCHAR szFilter[] = _T("Flash文件(*.flv)|*.flv");
 	CFileDialog fileDlg(TRUE, _T("FLV"), NULL, 0, szFilter, this);   
 	CString strFilePath;   
@@ -248,6 +192,7 @@ void CAVAnalysisToolsDlg::OnBnClickedFlv()
 	}   
 	if (strFilePath.IsEmpty()) return;
 
+	InitFlvListCtrl(bFlagFlv);
 	CParserFormat::getInstance()->parserFlvFile(strFilePath);
 
 	m_FileHeaderCtrl.DeleteAllItems();
@@ -305,4 +250,63 @@ void CAVAnalysisToolsDlg::OnBnClickedFlv()
 		*iter = NULL;
 	}
 	CParserFormat::getInstance()->m_vecTag.clear();
+}
+
+void CAVAnalysisToolsDlg::InitFlvListCtrl(bool bFlag)
+{
+	if (bFlag) return;
+	
+	RECT rect = {0};
+	GetClientRect(&rect);
+	m_Lbutton.Create("格式解析", BS_GROUPBOX|WS_VISIBLE, CRect(2, 60, (rect.right - rect.left) / 2, rect.bottom - rect.top), this, 1024);
+	m_RUpButton.Create("文件头信息", BS_GROUPBOX|WS_VISIBLE, CRect((rect.right - rect.left) / 2 + 1, 60, (rect.right - rect.left) , (rect.bottom - rect.top) / 2 - 50), this, 1025);
+	m_RDownButton.Create("详细信息", BS_GROUPBOX|WS_VISIBLE, CRect((rect.right - rect.left) / 2 + 1, (rect.bottom - rect.top) / 2 - 48, (rect.right - rect.left) , (rect.bottom - rect.top)), this, 1026);
+
+	m_Lbutton.GetClientRect(&rect);
+	m_ListCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, 
+										CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
+										&m_Lbutton, 
+										1);
+
+	m_ListCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
+	m_ListCtrl.InsertColumn(0,"序号",LVCFMT_LEFT, 40);
+	m_ListCtrl.InsertColumn(1,"类型",LVCFMT_LEFT, 80);
+	m_ListCtrl.InsertColumn(2,"大小",LVCFMT_LEFT, 80);
+	m_ListCtrl.InsertColumn(3,"时间戳",LVCFMT_LEFT, 80);
+	m_ListCtrl.InsertColumn(4,"Tag Data首字节",LVCFMT_LEFT, 220);
+
+
+	m_RUpButton.GetClientRect(&rect);
+	m_FileHeaderCtrl.Create(WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS, 
+							CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
+							&m_RUpButton, 
+							2);
+	m_FileHeaderCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
+	m_FileHeaderCtrl.InsertColumn(0,"Name",LVCFMT_LEFT, (rect.right - rect.left) / 2);
+	m_FileHeaderCtrl.InsertColumn(1,"Value",LVCFMT_LEFT, (rect.right - rect.left) / 2);
+
+	m_RDownButton.GetClientRect(&rect);
+	m_DetailCtrl.Create(	WS_CHILD | WS_VISIBLE | LVS_REPORT | LVS_SHOWSELALWAYS | LVS_AUTOARRANGE, 
+							CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
+							&m_RDownButton, 
+							2);
+	m_DetailCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
+	m_DetailCtrl.InsertColumn(0,"0",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(1,"1",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(2,"2",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(3,"3",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(4,"4",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(5,"5",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(6,"6",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(7,"7",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(8,"8",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(9,"9",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(10,"A",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(11,"B",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(12,"C",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(13,"D",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(14,"E",LVCFMT_LEFT, 30);
+	m_DetailCtrl.InsertColumn(15,"F",LVCFMT_LEFT, 30);
+
+	bFlagFlv = true;
 }

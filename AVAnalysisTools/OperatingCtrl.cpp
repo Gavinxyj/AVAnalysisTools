@@ -4,9 +4,7 @@
 
 COperatingCtrl::COperatingCtrl(CAVAnalysisToolsDlg *pToolDlg):m_pToolDlg(pToolDlg)
 {
-	InitializeCriticalSection(&m_csDeleteItem);
 }
-
 
 COperatingCtrl::~COperatingCtrl(void)
 {
