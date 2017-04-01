@@ -3,11 +3,15 @@
 //
 
 #pragma once
-#include "OperatingCtrl.h"
+
 #include "GdipButton.h"
 #include "afxwin.h"
+#include "PanelList.h"
 // CAVAnalysisToolsDlg 对话框
-class COperatingCtrl;
+#define MAX_CHILDWND 16
+enum {FLV, H264};
+
+
 class CAVAnalysisToolsDlg : public CDialogEx
 {
 // 构造
@@ -21,6 +25,7 @@ public:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 public:
 	void InitFlvListCtrl(bool bFlag);
+	void InitH264ListCtrl(bool bFlag);
 // 实现
 protected:
 	HICON m_hIcon;
@@ -35,14 +40,13 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnBnClickedFlv();
+	afx_msg void OnBnClickedButtonH264();
 public:
-	COperatingCtrl m_ListCtrl;
-	COperatingCtrl m_FileHeaderCtrl;
-	COperatingCtrl m_DetailCtrl;
-	CButton m_Lbutton;
+	CMap<int, int, CPanelList*, CPanelList*>m_mapPanelList;
+	
+	CPanelList *m_pPanelDlg[MAX_CHILDWND];
 	CGdipButton m_recodeBtn;
-	CButton m_RUpButton;
-	CButton m_RDownButton;
+	
 	CButton m_FlvButton;
-	bool bFlagFlv;
+	CButton m_h264;
 };

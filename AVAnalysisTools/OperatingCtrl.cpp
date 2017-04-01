@@ -2,7 +2,7 @@
 #include "OperatingCtrl.h"
 #include "AVAnalysisToolsDlg.h"
 
-COperatingCtrl::COperatingCtrl(CAVAnalysisToolsDlg *pToolDlg):m_pToolDlg(pToolDlg)
+COperatingCtrl::COperatingCtrl(CPanelList *pListDlg):m_pListDlg(pListDlg)
 {
 }
 
@@ -276,33 +276,33 @@ void COperatingCtrl::OnNMClick(NMHDR *pNMHDR, LRESULT *pResult)
 	if (NULL != pItemParam)
 	{
 		unsigned char *p = pItemParam->pTagData;
-		m_pToolDlg->m_DetailCtrl.DeleteAllItems();
+		m_pListDlg->m_DetailCtrl.DeleteAllItems();
 		//算出有多少行每行16个字节
 		int nCount = pItemParam->nLength / 16;
 		for (int nLoop = 0; nLoop < nCount; nLoop ++)
 		{
-			m_pToolDlg->m_DetailCtrl.InsertItem(nLoop, "");
+			m_pListDlg->m_DetailCtrl.InsertItem(nLoop, "");
 			for (int index = 0; index < 16; index ++)
 			{	
 				strTemp.Format("%02X", *p);
-				m_pToolDlg->m_DetailCtrl.SetItemText(nLoop, index, strTemp);
+				m_pListDlg->m_DetailCtrl.SetItemText(nLoop, index, strTemp);
 				
 				p ++;
 			}	
 		}
 		//算出剩余的字节
 		nCount = pItemParam->nLength % 16;
-		int nRow = m_pToolDlg->m_DetailCtrl.GetItemCount();
+		int nRow = m_pListDlg->m_DetailCtrl.GetItemCount();
 
-		m_pToolDlg->m_DetailCtrl.InsertItem(nRow, "");
+		m_pListDlg->m_DetailCtrl.InsertItem(nRow, "");
 		for (int nLoop = 0; nLoop < nCount; nLoop ++)
 		{
 			strTemp.Format("%02X", *p);	
-			m_pToolDlg->m_DetailCtrl.SetItemText(nRow, nLoop, strTemp);
+			m_pListDlg->m_DetailCtrl.SetItemText(nRow, nLoop, strTemp);
 			p ++;
 		}
 
-		m_pToolDlg->m_DetailCtrl.SetTextBkColor(RGB(205, 181, 205));
+		m_pListDlg->m_DetailCtrl.SetTextBkColor(RGB(205, 181, 205));
 	}
 	*pResult = 0;
 }

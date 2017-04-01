@@ -31,18 +31,18 @@ typedef struct _ITEMLPARAM
 	}
 }ITEMLPARAM, * PITEMLPARAM;
 
-class CAVAnalysisToolsDlg;
+class CPanelList;
 class COperatingCtrl : public CListCtrl
 {
 public:
-	COperatingCtrl(CAVAnalysisToolsDlg *pToolDlg);
+	COperatingCtrl(CPanelList *pListDlg);
 	~COperatingCtrl(void);
 
 public:
 	void AddItem(TAG *tag, int nIndex);
 	void parseFirstByte(TAG *tag, char *buff);
 private:
-	CAVAnalysisToolsDlg *m_pToolDlg;
+	CPanelList *m_pListDlg;
 	CButton button;
 	
 public:
