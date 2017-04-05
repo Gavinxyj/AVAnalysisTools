@@ -7,7 +7,7 @@
 #include "AVAnalysisToolsDlg.h"
 #include "afxdialogex.h"
 #include "ParserFormat.h"
-
+#include "./H264/NALParse.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -368,11 +368,42 @@ void CAVAnalysisToolsDlg::InitH264ListCtrl(bool bFlag)
 											CRect(2, 20, (rect.right - rect.left) - 2, rect.bottom - rect.top - 2), 
 											&m_pPanelDlg[H264]->m_RDownButton, 
 											2);
+
+	m_pPanelDlg[H264]->m_DetailCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT|LVS_EX_HEADERDRAGDROP|LVS_EX_GRIDLINES);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(0,"0",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(1,"1",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(2,"2",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(3,"3",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(4,"4",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(5,"5",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(6,"6",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(7,"7",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(8,"8",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(9,"9",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(10,"A",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(11,"B",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(12,"C",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(13,"D",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(14,"E",LVCFMT_LEFT, 30);
+	m_pPanelDlg[H264]->m_DetailCtrl.InsertColumn(15,"F",LVCFMT_LEFT, 30);
 	
 	m_pPanelDlg[H264]->m_bFlag = true;
 }
 void CAVAnalysisToolsDlg::OnBnClickedButtonH264()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	TCHAR szFilter[] = _T("Flash文件(*.h264)|*.h264");
+	CFileDialog fileDlg(TRUE, _T("FLV"), NULL, 0, szFilter, this);   
+	CString strFilePath;   
+	if (IDOK == fileDlg.DoModal())   
+	{   
+		// 如果点击了文件对话框上的“打开”按钮，则将选择的文件路径显示到编辑框里   
+		strFilePath = fileDlg.GetPathName();   
+
+	}   
+	if (strFilePath.IsEmpty()) return;
+
 	InitH264ListCtrl(m_pPanelDlg[H264]->m_bFlag);
+
+	h264_nal_parse(this, strFilePath.GetBuffer());
 }

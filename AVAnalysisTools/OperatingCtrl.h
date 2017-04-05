@@ -1,18 +1,21 @@
 #pragma once
 #include "afxcmn.h"
 #include "ItemMgr.h"
+
 typedef struct _ITEMLPARAM
 {
 	COLORREF clrText;
 	COLORREF clrTextBk;
-	unsigned char *pTagData;
+	void *pTagData;
 	int nRowIndex;
 	int nLength;
+	char chFlag[8];
 	_ITEMLPARAM()
 	{
 		clrText   = NULL;
 		clrTextBk = NULL;
 		pTagData  = NULL;
+		memset(chFlag, 0, 8);
 		nRowIndex = 0;
 		nLength   = 0;
 	}
@@ -21,6 +24,7 @@ typedef struct _ITEMLPARAM
 	{
 		clrText   = NULL;
 		clrTextBk = NULL;
+		memset(chFlag, 0, 8);
 		if (NULL != pTagData)
 		{
 			free(pTagData);
@@ -40,6 +44,8 @@ public:
 
 public:
 	void AddItem(TAG *tag, int nIndex);
+	void AddItem(NALU_t *naul, int nIndex);
+
 	void parseFirstByte(TAG *tag, char *buff);
 private:
 	CPanelList *m_pListDlg;

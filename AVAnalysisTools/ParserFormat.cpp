@@ -224,6 +224,7 @@ bool CParserFormat::parserMetaData(const unsigned char *buffer, int nLen)
 
 int CParserFormat::getString(const unsigned char *buff)
 {
+	//if(NULL == buff) return -1;
 	CString strFormat;
     char *chTemp = new char[32];
 	memset(chTemp, 0, 32);

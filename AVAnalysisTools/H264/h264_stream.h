@@ -21,7 +21,7 @@
  */
 
 #ifndef _H264_STREAM_H
-#define _H264_STREAM_H        1
+#define _H264_STREAM_H  1
 
 #include <stdint.h>
 #include <stdio.h>
@@ -33,6 +33,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 /**
    Sequence Parameter Set
@@ -60,9 +61,9 @@ typedef struct
     int qpprime_y_zero_transform_bypass_flag;
     int seq_scaling_matrix_present_flag;
       int seq_scaling_list_present_flag[8];
-      int* ScalingList4x4[6][16];
+      int* ScalingList4x4[6];
       int UseDefaultScalingMatrix4x4Flag[6];
-      int* ScalingList8x8[2][64];
+      int* ScalingList8x8[2];
       int UseDefaultScalingMatrix8x8Flag[2];
     int log2_max_frame_num_minus4;
     int pic_order_cnt_type;
@@ -238,36 +239,25 @@ typedef struct
         int chroma_offset_l1[64][2];
     } pwt; // predictive weight table
 
-    // TODO check max index
-    // TODO array of structs instead of struct of arrays
-    struct
+    struct // FIXME stack or array
     {
         int ref_pic_list_reordering_flag_l0;
-        struct
-        {
-            int reordering_of_pic_nums_idc[64];
-            int abs_diff_pic_num_minus1[64];
-            int long_term_pic_num[64];
-        } reorder_l0;
         int ref_pic_list_reordering_flag_l1;
-        struct
-        {
-            int reordering_of_pic_nums_idc[64];
-            int abs_diff_pic_num_minus1[64];
-            int long_term_pic_num[64];
-        } reorder_l1;
+        int reordering_of_pic_nums_idc;
+        int abs_diff_pic_num_minus1;
+        int long_term_pic_num;
     } rplr; // ref pic list reorder
 
-    struct
+    struct // FIXME stack or array
     {
         int no_output_of_prior_pics_flag;
         int long_term_reference_flag;
         int adaptive_ref_pic_marking_mode_flag;
-        int memory_management_control_operation[64];
-        int difference_of_pic_nums_minus1[64];
-        int long_term_pic_num[64];
-        int long_term_frame_idx[64];
-        int max_long_term_frame_idx_plus1[64];
+        int memory_management_control_operation;
+        int difference_of_pic_nums_minus1;
+        int long_term_pic_num;
+        int long_term_frame_idx;
+        int max_long_term_frame_idx_plus1;
     } drpm; // decoded ref pic marking
 
 } slice_header_t;
@@ -386,7 +376,7 @@ int read_nal_unit(h264_stream_t* h, uint8_t* buf, int size);
 int peek_nal_unit(h264_stream_t* h, uint8_t* buf, int size);
 
 void read_seq_parameter_set_rbsp(h264_stream_t* h, bs_t* b);
-void read_scaling_list(bs_t* b, int* scalingList, int sizeOfScalingList, int* useDefaultScalingMatrixFlag );
+void read_scaling_list(bs_t* b, int* scalingList, int sizeOfScalingList, int useDefaultScalingMatrixFlag );
 void read_vui_parameters(h264_stream_t* h, bs_t* b);
 void read_hrd_parameters(h264_stream_t* h, bs_t* b);
 
@@ -412,7 +402,7 @@ int more_rbsp_trailing_data(h264_stream_t* h, bs_t* b);
 int write_nal_unit(h264_stream_t* h, uint8_t* buf, int size);
 
 void write_seq_parameter_set_rbsp(h264_stream_t* h, bs_t* b);
-void write_scaling_list(bs_t* b, int* scalingList, int sizeOfScalingList, int* useDefaultScalingMatrixFlag );
+void write_scaling_list(bs_t* b, int* scalingList, int sizeOfScalingList, int useDefaultScalingMatrixFlag );
 void write_vui_parameters(h264_stream_t* h, bs_t* b);
 void write_hrd_parameters(h264_stream_t* h, bs_t* b);
 
@@ -432,8 +422,6 @@ void write_slice_header(h264_stream_t* h, bs_t* b);
 void write_ref_pic_list_reordering(h264_stream_t* h, bs_t* b);
 void write_pred_weight_table(h264_stream_t* h, bs_t* b);
 void write_dec_ref_pic_marking(h264_stream_t* h, bs_t* b);
-
-int read_debug_nal_unit(h264_stream_t* h, uint8_t* buf, int size);
 
 void debug_sps(sps_t* sps);
 void debug_pps(pps_t* pps);

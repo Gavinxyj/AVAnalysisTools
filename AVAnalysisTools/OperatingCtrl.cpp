@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "OperatingCtrl.h"
 #include "AVAnalysisToolsDlg.h"
-
+#include "./H264/h264_stream.h"
 COperatingCtrl::COperatingCtrl(CPanelList *pListDlg):m_pListDlg(pListDlg)
 {
 }
@@ -61,6 +61,150 @@ void COperatingCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 }
 
+void COperatingCtrl::AddItem(NALU_t *nalu, int nIndex)
+{
+	int index = InsertItem(GetItemCount(), "");
+
+	SetRedraw(FALSE);
+	char szId[8] = {0};
+	itoa(nIndex, szId, 10);
+
+	ITEMLPARAM * pItemParam = new ITEMLPARAM();
+	pItemParam->nRowIndex = index;
+	pItemParam->pTagData  = nalu;
+	strncpy(pItemParam->chFlag, "H264", sizeof("H264"));
+	SetItemData(index, (DWORD_PTR)pItemParam);
+	SetItemText(index, 0, szId);
+
+	switch(nalu->nal_reference_idc >> 5)
+	{
+	case NAL_REF_IDC_PRIORITY_DISPOSABLE:
+		{
+			SetItemText(index, 1, "DISPOSABLE");
+			break;
+		}
+	case NAL_REF_IDC_PRIORITY_LOW:
+		{
+			SetItemText(index, 1, "LOW");
+			break;
+		}
+	case NAL_REF_IDC_PRIORITY_HIGH:
+		{
+			SetItemText(index, 1, "HIGH");
+			break;
+		}
+	case NAL_REF_IDC_PRIORITY_HIGHEST:
+		{
+			SetItemText(index, 1, "HIGHEST");
+			break;
+		}
+	default:
+		{
+			SetItemText(index, 1, "OTHER");
+			break;
+		}
+	}
+	
+	switch(nalu->nal_unit_type)
+	{
+	case NAL_UNIT_TYPE_CODED_SLICE_NON_IDR:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "SLICE");
+			break;
+		}
+	case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_A:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "DPA");
+			break;
+		}
+	case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_B:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "DPB");
+			break;
+		}
+	case NAL_UNIT_TYPE_CODED_SLICE_DATA_PARTITION_C:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "DPC");
+			break;
+		}
+	case NAL_UNIT_TYPE_CODED_SLICE_IDR:
+		{
+			pItemParam->clrTextBk =  RGB(255, 114, 86);
+			SetItemText(index, 2, "IDR_SLICE");
+			break;
+		}
+	case NAL_UNIT_TYPE_SEI:
+		{
+			pItemParam->clrTextBk =  RGB(240, 128, 128);
+			SetItemText(index, 2, "SEI");
+			break;
+		}
+	case NAL_UNIT_TYPE_SPS:
+		{
+			pItemParam->clrTextBk =  RGB(205, 181, 205);
+			SetItemText(index, 2, "SPS");
+			break;
+		}
+	case NAL_UNIT_TYPE_PPS:
+		{
+			pItemParam->clrTextBk =  RGB(238, 106, 80);
+			SetItemText(index, 2, "PPS");
+			break;
+		}
+	case NAL_UNIT_TYPE_AUD:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "AUD");
+			break;
+		}
+	case NAL_UNIT_TYPE_END_OF_SEQUENCE:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "END_SEQUENCE");
+			break;
+		}
+	case NAL_UNIT_TYPE_END_OF_STREAM:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "END_STREAM");
+			break;
+		}
+	case NAL_UNIT_TYPE_FILLER:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "FILLER_DATA");
+			break;
+		}
+	case NAL_UNIT_TYPE_SPS_EXT:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "SPS_EXT");
+			break;
+		}
+	case NAL_UNIT_TYPE_CODED_SLICE_AUX:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "AUXILIARY_SLICE");
+			break;
+		}
+	default:
+		{
+			pItemParam->clrTextBk =  RGB(250, 235, 215);
+			SetItemText(index, 2, "OTHER");
+			break;
+		}
+	}
+	
+	CString strLen;
+	strLen.Format("%d", nalu->len);
+	SetItemText(index, 3, strLen);
+
+	SetRedraw(TRUE);
+}
 
 void COperatingCtrl::AddItem(TAG *tag, int nIndex)
 {
@@ -73,6 +217,7 @@ void COperatingCtrl::AddItem(TAG *tag, int nIndex)
 	ITEMLPARAM * pItemParam = new ITEMLPARAM();
 	pItemParam->nRowIndex = index;
 	pItemParam->pTagData  = tag->pTagData;
+	strncpy(pItemParam->chFlag, "FLV", sizeof("FLV"));
 	SetItemData(index, (DWORD_PTR)pItemParam);
 	SetItemText(index, 0, szId);
 
@@ -275,34 +420,97 @@ void COperatingCtrl::OnNMClick(NMHDR *pNMHDR, LRESULT *pResult)
 	
 	if (NULL != pItemParam)
 	{
-		unsigned char *p = pItemParam->pTagData;
-		m_pListDlg->m_DetailCtrl.DeleteAllItems();
-		//算出有多少行每行16个字节
-		int nCount = pItemParam->nLength / 16;
-		for (int nLoop = 0; nLoop < nCount; nLoop ++)
+		if (strncmp(pItemParam->chFlag, "FLV", sizeof("FLV")) == 0)
 		{
-			m_pListDlg->m_DetailCtrl.InsertItem(nLoop, "");
-			for (int index = 0; index < 16; index ++)
-			{	
-				strTemp.Format("%02X", *p);
-				m_pListDlg->m_DetailCtrl.SetItemText(nLoop, index, strTemp);
-				
+			unsigned char *p = (unsigned char*)pItemParam->pTagData;
+			m_pListDlg->m_DetailCtrl.DeleteAllItems();
+			//算出有多少行每行16个字节
+			int nCount = pItemParam->nLength / 16;
+			for (int nLoop = 0; nLoop < nCount; nLoop ++)
+			{
+				m_pListDlg->m_DetailCtrl.InsertItem(nLoop, "");
+				for (int index = 0; index < 16; index ++)
+				{	
+					strTemp.Format("%02X", *p);
+					m_pListDlg->m_DetailCtrl.SetItemText(nLoop, index, strTemp);
+
+					p ++;
+				}	
+			}
+			//算出剩余的字节
+			nCount = pItemParam->nLength % 16;
+			int nRow = m_pListDlg->m_DetailCtrl.GetItemCount();
+
+			m_pListDlg->m_DetailCtrl.InsertItem(nRow, "");
+			for (int nLoop = 0; nLoop < nCount; nLoop ++)
+			{
+				strTemp.Format("%02X", *p);	
+				m_pListDlg->m_DetailCtrl.SetItemText(nRow, nLoop, strTemp);
 				p ++;
-			}	
-		}
-		//算出剩余的字节
-		nCount = pItemParam->nLength % 16;
-		int nRow = m_pListDlg->m_DetailCtrl.GetItemCount();
+			}
 
-		m_pListDlg->m_DetailCtrl.InsertItem(nRow, "");
-		for (int nLoop = 0; nLoop < nCount; nLoop ++)
+			m_pListDlg->m_DetailCtrl.SetTextBkColor(RGB(205, 181, 205));
+		}
+		else if (strncmp(pItemParam->chFlag, "H264", sizeof("H264")) == 0)
 		{
-			strTemp.Format("%02X", *p);	
-			m_pListDlg->m_DetailCtrl.SetItemText(nRow, nLoop, strTemp);
-			p ++;
-		}
+			NALU_t *pNaluItem = (NALU_t*)pItemParam->pTagData;
+			unsigned char *p = (unsigned char*)pNaluItem->buf;
+			m_pListDlg->m_DetailCtrl.DeleteAllItems();
+			//算出有多少行每行16个字节
+			int nCount = pNaluItem->len / 16;
+			for (int nLoop = 0; nLoop < nCount; nLoop ++)
+			{
+				m_pListDlg->m_DetailCtrl.InsertItem(nLoop, "");
+				for (int index = 0; index < 16; index ++)
+				{	
+					strTemp.Format("%02X", *p);
+					m_pListDlg->m_DetailCtrl.SetItemText(nLoop, index, strTemp);
 
-		m_pListDlg->m_DetailCtrl.SetTextBkColor(RGB(205, 181, 205));
+					p ++;
+				}	
+			}
+			//算出剩余的字节
+			nCount = pNaluItem->len % 16;
+			int nRow = m_pListDlg->m_DetailCtrl.GetItemCount();
+
+			m_pListDlg->m_DetailCtrl.InsertItem(nRow, "");
+			for (int nLoop = 0; nLoop < nCount; nLoop ++)
+			{
+				strTemp.Format("%02X", *p);	
+				m_pListDlg->m_DetailCtrl.SetItemText(nRow, nLoop, strTemp);
+				p ++;
+			}
+			m_pListDlg->m_DetailCtrl.SetTextBkColor(RGB(205, 181, 205));
+
+			m_pListDlg->m_FileHeaderCtrl.DeleteAllItems();
+
+			m_pListDlg->m_FileHeaderCtrl.InsertItem(0, "");
+			strResult.Format("%02X",*pNaluItem->buf);
+			m_pListDlg->m_FileHeaderCtrl.SetItemText(0,0,"NALU首字节");
+			m_pListDlg->m_FileHeaderCtrl.SetItemText(0,1,strResult);
+
+			int nRet = 0;
+			m_pListDlg->m_FileHeaderCtrl.InsertItem(1, "");
+			sscanf_s(strResult.GetBuffer(), "%X", &nRet);
+			CString F, NRI, TYPE;
+			F.Format("%d", *pNaluItem->buf >> 7);
+			m_pListDlg->m_FileHeaderCtrl.SetItemText(1,0,"禁止位（F）");
+			m_pListDlg->m_FileHeaderCtrl.SetItemText(1,1,F);
+
+			m_pListDlg->m_FileHeaderCtrl.InsertItem(2, "");
+			int n = (*pNaluItem->buf & 0x60);
+			NRI.Format("%d", (*pNaluItem->buf & 0x60) >>  5);
+			m_pListDlg->m_FileHeaderCtrl.SetItemText(2,0,"重要级别（NRI）");
+			m_pListDlg->m_FileHeaderCtrl.SetItemText(2,1,NRI);
+
+			m_pListDlg->m_FileHeaderCtrl.InsertItem(3, "");
+			TYPE.Format("%d", (*pNaluItem->buf & 0x1f));
+			m_pListDlg->m_FileHeaderCtrl.SetItemText(3,0,"NALU类型（TYPE）");
+			m_pListDlg->m_FileHeaderCtrl.SetItemText(3,1,TYPE);
+
+			m_pListDlg->m_FileHeaderCtrl.SetTextBkColor(RGB(205, 181, 205));
+		}
+		
 	}
 	*pResult = 0;
 }
